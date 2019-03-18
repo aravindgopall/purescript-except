@@ -2,6 +2,7 @@ module Except.Dsl where
 
 import Control.Monad.Free (Free, liftF)
 import Data.Maybe (Maybe)
+import Effect.Aff (Aff)
 import Prelude (Unit, ($), (<<<))
 
 
@@ -9,6 +10,7 @@ import Prelude (Unit, ($), (<<<))
 data FlowE st a =  Command String (Array String)
                | When String (Maybe String)
                | Respond String
+               | End (String -> Aff Unit)
 
 
 type ExceptFlow st a = Free (FlowE st) a
@@ -22,4 +24,7 @@ when str = liftF <<< When str
 
 respond :: forall st. String -> ExceptFlow st Unit
 respond = liftF <<< Respond
+
+end :: forall st. (String -> Aff Unit) -> ExceptFlow st Unit
+end = liftF <<< End
 
